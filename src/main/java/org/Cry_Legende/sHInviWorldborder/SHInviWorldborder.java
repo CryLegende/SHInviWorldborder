@@ -265,7 +265,7 @@ public class SHInviWorldborder extends JavaPlugin {
     // --- Affichage des particules via l'API Bukkit/Spigot ---
 
     private void sendRedstoneParticle(Player player, Location loc) {
-        player.spawnParticle(Particle.REDSTONE, loc, 1, 0, 0, 0,
+        player.spawnParticle(Particle.DUST, loc, 1, 0, 0, 0,
             new Particle.DustOptions(Color.RED, 1.0F));
         if (debug) {
             getLogger().info("[DEBUG] Particule rouge affichée à " + loc + " pour " + player.getName());
