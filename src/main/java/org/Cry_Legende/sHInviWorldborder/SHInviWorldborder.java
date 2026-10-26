@@ -11,20 +11,28 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.world.WorldLoadEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 public class SHInviWorldborder extends JavaPlugin {
 
     // Stocke les paramètres originels (persistés) du worldborder
     private final Map<World, BorderSettings> persistentBorders = new HashMap<>();
+    // Joueurs déjà renvoyés au spawn dans ce tick : plusieurs déplacements annulés ne programment qu'une téléportation
+    private final Set<UUID> returning = new HashSet<>();
     // Fichier de persistance (borderdata.yml)
     private File borderDataFile;
     private FileConfiguration borderDataConfig;
@@ -45,28 +53,10 @@ public class SHInviWorldborder extends JavaPlugin {
 
         initBorderDataFile();
 
-        // Pour chaque monde, charge ou initialise les paramètres originels (persistés)
+        // Pour chaque monde déjà chargé, charge ou initialise les paramètres originels (persistés).
+        // Les mondes chargés plus tard (PhantomWorlds) sont pris en charge par WorldLoadEvent.
         for (World world : Bukkit.getWorlds()) {
-            BorderSettings bs = loadBorderSettingsForWorld(world);
-            if (bs == null) {
-                WorldBorder wb = world.getWorldBorder();
-                bs = new BorderSettings(
-                    wb.getCenter(),
-                    wb.getSize(),
-                    wb.getWarningDistance(),
-                    wb.getWarningTime(),
-                    wb.getDamageBuffer(),
-                    wb.getDamageAmount()
-                );
-                saveBorderSettingsForWorld(world, bs);
-            }
-            persistentBorders.put(world, bs);
-            if (debug) {
-                getLogger().info("[DEBUG] Monde " + world.getName() + " - Border persistée: taille="
-                    + bs.getSize() + ", centre=" + bs.getCenter());
-            }
-            // Masque l'affichage du worldborder natif
-            applyOverride(world, bs);
+            registerWorld(world);
         }
 
         // Réappliquer l'override visuel chaque seconde
@@ -183,32 +173,77 @@ public class SHInviWorldborder extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BorderMoveListener(), this);
     }
 
+    /**
+     * Charge (ou initialise) les paramètres originels d'un monde et masque son worldborder natif.
+     * Appelée au démarrage pour les mondes déjà chargés, puis par WorldLoadEvent pour les autres.
+     */
+    private void registerWorld(World world) {
+        if (persistentBorders.containsKey(world)) {
+            return;
+        }
+        BorderSettings bs = loadBorderSettingsForWorld(world);
+        if (bs == null) {
+            WorldBorder wb = world.getWorldBorder();
+            bs = new BorderSettings(
+                wb.getCenter(),
+                wb.getSize(),
+                wb.getWarningDistance(),
+                wb.getWarningTimeTicks() / 20, // borderdata.yml garde le délai en secondes
+                wb.getDamageBuffer(),
+                wb.getDamageAmount()
+            );
+            saveBorderSettingsForWorld(world, bs);
+        }
+        persistentBorders.put(world, bs);
+        if (debug) {
+            getLogger().info("[DEBUG] Monde " + world.getName() + " - Border persistée: taille="
+                + bs.getSize() + ", centre=" + bs.getCenter());
+        }
+        // Masque l'affichage du worldborder natif
+        applyOverride(world, bs);
+    }
+
+    // Remet les vraies valeurs sur le worldborder natif d'un monde
+    private void restoreBorder(World world, BorderSettings bs) {
+        WorldBorder wb = world.getWorldBorder();
+        wb.setCenter(bs.getCenter());
+        // 1.21+ refuse une taille au-delà du maximum vanilla (5.9999968E7)
+        wb.setSize(Math.max(1.0, Math.min(bs.getSize(), 5.9999968E7)));
+        wb.setWarningDistance(bs.getWarningDistance());
+        wb.setWarningTimeTicks(bs.getWarningTime() * 20);
+        wb.setDamageBuffer(bs.getDamageBuffer());
+        wb.setDamageAmount(bs.getDamageAmount());
+    }
+
     @Override
     public void onDisable() {
         getLogger().info("SHInviWorldborder désactivé. Restauration des paramètres originels du worldborder.");
         // À la désactivation, restaure les vraies valeurs pour chaque monde
-        for (World world : persistentBorders.keySet()) {
-            BorderSettings bs = persistentBorders.get(world);
-            if (bs != null) {
-                WorldBorder wb = world.getWorldBorder();
-                wb.setCenter(bs.getCenter());
-                // 1.21+ refuse une taille au-delà du maximum vanilla (5.9999968E7)
-                wb.setSize(Math.max(1.0, Math.min(bs.getSize(), 5.9999968E7)));
-                wb.setWarningDistance(bs.getWarningDistance());
-                wb.setWarningTime(bs.getWarningTime());
-                wb.setDamageBuffer(bs.getDamageBuffer());
-                wb.setDamageAmount(bs.getDamageAmount());
+        for (Map.Entry<World, BorderSettings> entry : persistentBorders.entrySet()) {
+            if (entry.getValue() != null) {
+                restoreBorder(entry.getKey(), entry.getValue());
             }
         }
+        persistentBorders.clear();
     }
 
-    // Applique l'override sur le worldborder natif en fixant sa taille à 1.0E7
+    // Applique l'override sur le worldborder natif en fixant sa taille à 1.0E7.
+    // Appelée chaque seconde : on ne touche au border que si une valeur a changé (chaque réglage envoie un paquet aux joueurs).
     private void applyOverride(World world, BorderSettings bs) {
         WorldBorder wb = world.getWorldBorder();
-        wb.setCenter(bs.getCenter());
-        wb.setSize(1.0E7);
-        wb.setWarningDistance(0);
-        wb.setWarningTime(0);
+        Location current = wb.getCenter();
+        if (current.getX() != bs.getCenter().getX() || current.getZ() != bs.getCenter().getZ()) {
+            wb.setCenter(bs.getCenter());
+        }
+        if (wb.getSize() != 1.0E7) {
+            wb.setSize(1.0E7);
+        }
+        if (wb.getWarningDistance() != 0) {
+            wb.setWarningDistance(0);
+        }
+        if (wb.getWarningTimeTicks() != 0) {
+            wb.setWarningTimeTicks(0);
+        }
     }
 
     // --- Persistance (borderdata.yml) ---
@@ -287,6 +322,20 @@ public class SHInviWorldborder extends JavaPlugin {
         }
 
         @EventHandler
+        public void onWorldLoad(WorldLoadEvent event) {
+            registerWorld(event.getWorld());
+        }
+
+        // Le monde déchargé ne doit plus être retenu en mémoire, et son border natif est rendu tel quel avant sa sauvegarde
+        @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+        public void onWorldUnload(WorldUnloadEvent event) {
+            BorderSettings bs = persistentBorders.remove(event.getWorld());
+            if (bs != null) {
+                restoreBorder(event.getWorld(), bs);
+            }
+        }
+
+        @EventHandler
         public void onPlayerMove(PlayerMoveEvent event) {
             // Traiter uniquement les déplacements inter-blocs
             if (event.getFrom().getBlockX() == event.getTo().getBlockX() &&
@@ -314,9 +363,15 @@ public class SHInviWorldborder extends JavaPlugin {
                     getLogger().info("[DEBUG] " + player.getName() + " bloqué à la limite.");
             }
             // Si le joueur se retrouve toujours hors après déplacement
-            else if (!isInside(player.getLocation(), bs)) {
+            else if (!fromInside) { // le joueur est déjà hors zone : sa position actuelle est event.getFrom()
                 event.setCancelled(true);
+                UUID uuid = player.getUniqueId();
+                if (!returning.add(uuid)) {
+                    return; // une téléportation de retour est déjà programmée
+                }
                 Bukkit.getScheduler().runTask(SHInviWorldborder.this, () -> {
+                    returning.remove(uuid);
+                    if (!player.isOnline()) return;
                     Location spawn = world.getSpawnLocation();
                     if (!isInside(spawn, bs)) {
                         if (debug)
