@@ -28,6 +28,7 @@
 #                              Le mode bypass de SuperiorSkyblock2 (/is admin bypass)
 #                              ouvre aussi les bordures d'îles.
 #    shinviworldborder.admin   /shinviworldborder reload (op par défaut).
+#    shinviworldborder.margin.<nom>  Marge d'île élargie (voir islands.margins).
 #
 #  Fichiers :
 #    config.yml       réglages (ce fichier)
@@ -61,6 +62,12 @@ islands:
   enabled: true
   # Distance, en blocs, que le corps d'un joueur en vol peut franchir au-delà du bord de l'île.
   margin: 1.0
+  # Marges plus larges, accordées par la permission shinviworldborder.margin.<nom>.
+  # Le joueur garde la plus large de celles qu'il possède. Relu toutes les 5 secondes.
+  margins:
+    vip: 2.0
+    vipplus: 5.0
+    vipelite: 10.0
   particles:
     enabled: true
     # Le mur est dessiné sur le bord de l'île (limite de construction), pas à la limite de déplacement.

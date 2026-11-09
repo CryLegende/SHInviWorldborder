@@ -5,6 +5,9 @@ import org.bukkit.Particle;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -12,8 +15,15 @@ import java.util.logging.Logger;
  */
 record Settings(int intervalTicks, Border worlds, Border islands) {
 
+    /** Préfixe des permissions qui élargissent la marge : shinviworldborder.margin.<nom>. */
+    static final String MARGIN_PERMISSION = "shinviworldborder.margin.";
+
     /** Réglages d'un type de bordure (monde ou île). */
-    record Border(boolean enabled, double margin, Particles particles) {
+    record Border(boolean enabled, double margin, List<Margin> margins, Particles particles) {
+    }
+
+    /** Marge accordée par une permission. */
+    record Margin(String permission, double blocks) {
     }
 
     /** Mur de particules affiché près d'une bordure ; null quand il est désactivé. */
@@ -36,7 +46,7 @@ record Settings(int intervalTicks, Border worlds, Border islands) {
 
     private static Border border(ConfigurationSection section, double defaultMargin, Logger logger) {
         if (section == null) {
-            return new Border(false, defaultMargin, null);
+            return new Border(false, defaultMargin, List.of(), null);
         }
         ConfigurationSection p = section.getConfigurationSection("particles");
         Particles particles = null;
@@ -50,7 +60,20 @@ record Settings(int intervalTicks, Border worlds, Border islands) {
                     Math.max(0.0, p.getDouble("spread", 1.5)),
                     Math.max(0.0, p.getDouble("spread-y", 1.0)));
         }
-        return new Border(section.getBoolean("enabled", true), Math.max(0.0, section.getDouble("margin", defaultMargin)), particles);
+        return new Border(section.getBoolean("enabled", true), Math.max(0.0, section.getDouble("margin", defaultMargin)),
+                margins(section.getConfigurationSection("margins")), particles);
+    }
+
+    /** Marges par permission, la plus large d'abord : la première que le joueur possède est la sienne. */
+    private static List<Margin> margins(ConfigurationSection section) {
+        List<Margin> margins = new ArrayList<>();
+        if (section != null) {
+            for (String name : section.getKeys(false)) {
+                margins.add(new Margin(MARGIN_PERMISSION + name, Math.max(0.0, section.getDouble(name))));
+            }
+        }
+        margins.sort(Comparator.comparingDouble(Margin::blocks).reversed());
+        return List.copyOf(margins);
     }
 
     private static Color color(String hex, Logger logger) {

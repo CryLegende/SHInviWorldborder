@@ -45,6 +45,7 @@ Utilisé sur : **Opale**.
 | --- | --- | --- |
 | `/shinviworldborder reload` | `shinviworldborder.admin` (op) | Recharge `config.yml`, `messages.yml` et `borderdata.yml`. |
 | | `shinviworldborder.bypass` | Traverser les bordures. Le mode bypass de SuperiorSkyblock2 ouvre aussi les bordures d'îles. |
+| | `shinviworldborder.margin.<nom>` | Marge d'île élargie, définie dans `islands.margins` (SkyHand : `vip` 2 blocs, `vipplus` 5, `vipelite` 10). |
 
 ## Configuration
 

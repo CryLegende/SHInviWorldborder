@@ -14,7 +14,9 @@ import org.bukkit.scheduler.BukkitTask;
 import java.io.File;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SHInviWorldborder extends JavaPlugin implements TabCompleter {
 
@@ -22,12 +24,18 @@ public class SHInviWorldborder extends JavaPlugin implements TabCompleter {
     private static final String ADMIN = "shinviworldborder.admin";
     /** Le serveur ne signale pas les pas de moins de 1/16 de bloc : un joueur à pied peut dépasser le bord de si peu. */
     private static final double WALK_TOLERANCE = 0.1;
+    /** Durée, en ticks, pendant laquelle la marge d'un joueur (lue dans ses permissions) est réutilisée. */
+    private static final int MARGIN_CACHE_TICKS = 100;
+
+    private record CachedMargin(int tick, double blocks) {
+    }
 
     private Settings settings;
     private Messages messages;
     private WorldBorders worlds;
     private IslandBorders islands;
     private BukkitTask particleTask;
+    private final Map<UUID, CachedMargin> islandMargins = new ConcurrentHashMap<>();
 
     @Override
     public void onEnable() {
@@ -102,11 +110,35 @@ public class SHInviWorldborder extends JavaPlugin implements TabCompleter {
         if (wall == null) {
             return null;
         }
-        Area flight = wall.expand(settings.islands().margin() - halfWidth);
-        if (player.isFlying() || player.isGliding()) {
-            return flight;
+        if (!player.isFlying() && !player.isGliding() && wall.contains(at.getX(), at.getZ(), WALK_TOLERANCE)) {
+            return wall;
         }
-        return wall.contains(at.getX(), at.getZ(), WALK_TOLERANCE) ? wall : flight;
+        return wall.expand(islandMargin(player) - halfWidth);
+    }
+
+    /** Marge d'île du joueur : la plus large de ses permissions shinviworldborder.margin.<nom>, sinon la marge de base. */
+    double islandMargin(Player player) {
+        Settings.Border border = settings.islands();
+        if (border.margins().isEmpty()) {
+            return border.margin();
+        }
+        int now = Bukkit.getCurrentTick();
+        CachedMargin cached = islandMargins.get(player.getUniqueId());
+        if (cached != null && now - cached.tick() < MARGIN_CACHE_TICKS) {
+            return cached.blocks();
+        }
+        double blocks = border.margin();
+        for (Settings.Margin margin : border.margins()) {
+            if (margin.blocks() <= blocks) {
+                break;
+            }
+            if (player.hasPermission(margin.permission())) {
+                blocks = margin.blocks();
+                break;
+            }
+        }
+        islandMargins.put(player.getUniqueId(), new CachedMargin(now, blocks));
+        return blocks;
     }
 
     boolean ignoresIslandBorder(Player player) {
@@ -120,6 +152,7 @@ public class SHInviWorldborder extends JavaPlugin implements TabCompleter {
     }
 
     void forget(UUID player) {
+        islandMargins.remove(player);
         if (islands != null) {
             islands.forget(player);
         }
@@ -157,6 +190,7 @@ public class SHInviWorldborder extends JavaPlugin implements TabCompleter {
         // Les bordures natives sont remises puis masquées de nouveau : borderdata.yml est relu au passage
         worlds.unregisterAll(Bukkit.getWorlds());
         loadFiles();
+        islandMargins.clear();
         worlds = new WorldBorders(this);
         registerWorlds();
         startParticleTask();
