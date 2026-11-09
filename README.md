@@ -22,7 +22,9 @@ le mur quand un joueur s'en approche, et s'épaissit à mesure qu'il s'en rappro
 `/worldborder set` et `/worldborder center` restent utilisables : leur valeur devient la nouvelle bordure invisible.
 
 **Bordures d'îles** (SuperiorSkyblock2). Le mur suit la zone protégée de l'île, là où ses membres
-peuvent construire. Le joueur peut la dépasser d'un bloc (`islands.margin`) pour poser les blocs du bord.
+peuvent construire. En vol (ou en élytres), le joueur peut la dépasser d'un bloc (`islands.margin`) pour
+poser les blocs du bord. À pied, il s'arrête au bord : il ne peut pas marcher sur un bloc posé hors de l'île,
+que la protection retire aussitôt.
 `stop-leaving` doit être à `false` dans la configuration de SuperiorSkyblock2, sinon il arrête le joueur
 au bord exact, avant cette marge.
 

@@ -20,6 +20,8 @@ public class SHInviWorldborder extends JavaPlugin implements TabCompleter {
 
     static final String BYPASS = "shinviworldborder.bypass";
     private static final String ADMIN = "shinviworldborder.admin";
+    /** Le serveur ne signale pas les pas de moins de 1/16 de bloc : un joueur à pied peut dépasser le bord de si peu. */
+    private static final double WALK_TOLERANCE = 0.1;
 
     private Settings settings;
     private Messages messages;
@@ -86,13 +88,25 @@ public class SHInviWorldborder extends JavaPlugin implements TabCompleter {
         return wall == null ? null : wall.expand(settings.worlds().margin() - halfWidth);
     }
 
-    /** Zone où peut se trouver le centre d'un joueur sur l'île de « at » : le bord de l'île plus la marge. */
+    /**
+     * Zone où peut se trouver le centre d'un joueur sur l'île de « at ».
+     * En vol (ou en élytres) : le bord de l'île plus la marge. À pied : le bord de l'île, le joueur ne peut
+     * pas avancer au-dessus du vide sur un bloc posé hors de l'île, que la protection fait aussitôt disparaître.
+     * Un joueur qui cesse de voler dans la marge garde la grande zone : il tombe au lieu d'être renvoyé.
+     */
     Area islandBox(Player player, Location at, double halfWidth) {
         if (islands == null || !settings.islands().enabled()) {
             return null;
         }
         Area wall = islands.edge(player, at);
-        return wall == null ? null : wall.expand(settings.islands().margin() - halfWidth);
+        if (wall == null) {
+            return null;
+        }
+        Area flight = wall.expand(settings.islands().margin() - halfWidth);
+        if (player.isFlying() || player.isGliding()) {
+            return flight;
+        }
+        return wall.contains(at.getX(), at.getZ(), WALK_TOLERANCE) ? wall : flight;
     }
 
     boolean ignoresIslandBorder(Player player) {

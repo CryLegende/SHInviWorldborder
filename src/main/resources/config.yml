@@ -9,8 +9,10 @@
 #  renvoyé au spawn du monde.
 #
 #  Bordures d'îles (SuperiorSkyblock2) : le mur suit la zone protégée de
-#  l'île, là où ses membres peuvent construire. Le joueur peut la dépasser
-#  de « margin » blocs pour poser les blocs du bord. Un joueur déjà dehors
+#  l'île, là où ses membres peuvent construire. En vol (ou en élytres), le
+#  joueur peut la dépasser de « margin » blocs pour poser les blocs du bord.
+#  À pied, il s'arrête au bord : il ne peut pas marcher sur un bloc posé
+#  hors de l'île, que la protection retire aussitôt. Un joueur déjà dehors
 #  est renvoyé sur l'île. Dans SuperiorSkyblock2, stop-leaving doit être à
 #  false : sinon il arrête le joueur au bord exact, avant cette marge.
 #
@@ -57,7 +59,7 @@ world-borders:
 
 islands:
   enabled: true
-  # Distance, en blocs, que le corps du joueur peut franchir au-delà du bord de l'île.
+  # Distance, en blocs, que le corps d'un joueur en vol peut franchir au-delà du bord de l'île.
   margin: 1.0
   particles:
     enabled: true
