@@ -1,2 +1,71 @@
-outOfBorderMessage: "&7&l« &c&lSH &8&l» &7Vous êtes en dehors de la limite, retour au spawn !"
-debug: false
+# ============================================================================
+#  SHInviWorldborder : bordures invisibles des mondes et des îles
+# ============================================================================
+#
+#  Bordures de monde : le worldborder natif est masqué (le client ne voit
+#  plus le mur bleu) et la vraie bordure est gardée dans borderdata.yml.
+#  Un /worldborder set ou /worldborder center dans un monde devient sa
+#  nouvelle bordure invisible. Un joueur qui se retrouve déjà dehors est
+#  renvoyé au spawn du monde.
+#
+#  Bordures d'îles (SuperiorSkyblock2) : le mur suit la zone protégée de
+#  l'île, là où ses membres peuvent construire. Le joueur peut la dépasser
+#  de « margin » blocs pour poser les blocs du bord. Un joueur déjà dehors
+#  est renvoyé sur l'île. Dans SuperiorSkyblock2, stop-leaving doit être à
+#  false : sinon il arrête le joueur au bord exact, avant cette marge.
+#
+#  Dans les deux cas, le joueur glisse le long du mur, les perles et le
+#  chorus ne mènent pas au-delà, et un mur de particules apparaît quand il
+#  s'en approche.
+#
+#  Commandes :
+#    /shinviworldborder reload  Recharge config.yml, messages.yml et borderdata.yml.
+#
+#  Permissions :
+#    shinviworldborder.bypass  Traverser les bordures (personne par défaut).
+#                              Le mode bypass de SuperiorSkyblock2 (/is admin bypass)
+#                              ouvre aussi les bordures d'îles.
+#    shinviworldborder.admin   /shinviworldborder reload (op par défaut).
+#
+#  Fichiers :
+#    config.yml       réglages (ce fichier)
+#    messages.yml     les messages du chat
+#    borderdata.yml   la bordure réelle de chaque monde
+# ============================================================================
+
+# Intervalle, en ticks, entre deux affichages des murs de particules.
+interval-ticks: 4
+
+world-borders:
+  enabled: true
+  # Distance, en blocs, que le corps du joueur peut franchir au-delà de la bordure.
+  margin: 0.0
+  particles:
+    enabled: true
+    # Couleur des particules, en hexadécimal.
+    color: '#FF0000'
+    # Taille des particules (1.0 = taille normale de la poussière de redstone).
+    size: 1.0
+    # Distance, en blocs, à partir de laquelle le mur apparaît.
+    distance: 16.0
+    # Particules par mur et par affichage : « max » contre le mur, « min » à la distance d'apparition.
+    min: 2
+    max: 12
+    # Étalement du nuage le long du mur et en hauteur, en blocs.
+    spread: 1.5
+    spread-y: 1.0
+
+islands:
+  enabled: true
+  # Distance, en blocs, que le corps du joueur peut franchir au-delà du bord de l'île.
+  margin: 1.0
+  particles:
+    enabled: true
+    # Le mur est dessiné sur le bord de l'île (limite de construction), pas à la limite de déplacement.
+    color: '#FF0000'
+    size: 1.0
+    distance: 8.0
+    min: 2
+    max: 12
+    spread: 1.5
+    spread-y: 1.0

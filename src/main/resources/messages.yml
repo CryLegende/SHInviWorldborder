@@ -1,0 +1,21 @@
+# ============================================================================
+#  SHInviWorldborder : messages du chat
+# ============================================================================
+#  Codes couleur & acceptés. Format SkyHand : préfixe de la couleur du type,
+#  texte en &7, mots importants dans la couleur du type.
+#    &a succès · &e information · &6 avertissement · &c erreur
+#  Un message vide n'est pas envoyé.
+# ============================================================================
+
+# Le joueur était hors de la bordure du monde : il est renvoyé au spawn du monde.
+world-outside: '&7&l« &c&lSH &8&l» &7Vous êtes en dehors de la &climite&7, retour au &cspawn &7!'
+
+# Le joueur était hors de la bordure de l'île : il est renvoyé sur l'île.
+island-outside: '&7&l« &c&lSH &8&l» &7Vous étiez en dehors de l''&cîle&7, retour sur l''île !'
+
+# Perle ou chorus qui aurait mené au-delà d'une bordure : la téléportation est annulée.
+teleport-blocked: '&7&l« &c&lSH &8&l» &7Impossible de vous téléporter &cau-delà de la limite&7.'
+
+reloaded: '&7&l« &a&lSH &8&l» &7Configuration de SHInviWorldborder &arechargée&7.'
+no-permission: '&7&l« &c&lSH &8&l» &7Vous n''avez pas la &cpermission &7d''utiliser cette commande.'
+usage: '&7&l« &e&lSH &8&l» &7Utilisation : &e/shinviworldborder reload'

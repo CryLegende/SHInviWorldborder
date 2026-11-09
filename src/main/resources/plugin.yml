@@ -3,3 +3,18 @@ version: '${project.version}'
 main: org.Cry_Legende.sHInviWorldborder.SHInviWorldborder
 api-version: '1.20'
 author: Cry_Legende
+description: Bordures invisibles des mondes et des îles, signalées par un mur de particules.
+softdepend: [SuperiorSkyblock2]
+
+commands:
+  shinviworldborder:
+    description: Administration de SHInviWorldborder.
+    usage: /<command> reload
+
+permissions:
+  shinviworldborder.bypass:
+    description: Traverser les bordures des mondes et des îles.
+    default: false
+  shinviworldborder.admin:
+    description: Recharger la configuration et les messages.
+    default: op
