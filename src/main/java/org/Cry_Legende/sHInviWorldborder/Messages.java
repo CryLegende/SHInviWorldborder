@@ -4,8 +4,6 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.io.File;
-
 /**
  * Messages du chat, lus dans messages.yml. Un message vide n'est pas envoyé.
  */
@@ -15,8 +13,8 @@ final class Messages {
 
     private final YamlConfiguration file;
 
-    Messages(File source) {
-        this.file = YamlConfiguration.loadConfiguration(source);
+    Messages(YamlConfiguration file) {
+        this.file = file;
     }
 
     /** Envoie le message « key », chaque paire de « replacements » remplaçant {nom} par sa valeur. */

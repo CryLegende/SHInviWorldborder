@@ -9,12 +9,30 @@ softdepend: [SuperiorSkyblock2]
 commands:
   shinviworldborder:
     description: Administration de SHInviWorldborder.
-    usage: /<command> reload
+    usage: /<command> <reload|info>
 
 permissions:
   shinviworldborder.bypass:
     description: Traverser les bordures des mondes et des îles.
     default: false
-  shinviworldborder.admin:
-    description: Recharger la configuration et les messages.
+  shinviworldborder.margin.vip:
+    description: Marge d'île élargie du palier vip (islands.margins.vip). Un nœud par clé de islands.margins, par exemple shinviworldborder.margin.vipplus.
     default: op
+  shinviworldborder.margin.vipplus:
+    description: Marge d'île élargie du palier vipplus (islands.margins.vipplus).
+    default: op
+  shinviworldborder.margin.vipelite:
+    description: Marge d'île élargie du palier vipelite (islands.margins.vipelite).
+    default: op
+  shinviworldborder.admin:
+    description: Toutes les commandes d'administration de SHInviWorldborder.
+    default: op
+    children:
+      shinviworldborder.admin.reload: true
+      shinviworldborder.admin.info: true
+  shinviworldborder.admin.reload:
+    description: Recharger config.yml, messages.yml et borderdata.yml.
+    default: false
+  shinviworldborder.admin.info:
+    description: Voir la bordure réelle de chaque monde.
+    default: false

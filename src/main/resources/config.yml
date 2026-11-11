@@ -21,14 +21,21 @@
 #  s'en approche.
 #
 #  Commandes :
-#    /shinviworldborder reload  Recharge config.yml, messages.yml et borderdata.yml.
+#    /shinviworldborder reload        Recharge config.yml, messages.yml et borderdata.yml.
+#                                     Un fichier invalide annule le rechargement : l'ancienne
+#                                     configuration reste en place.
+#    /shinviworldborder info [monde]  Affiche la bordure réelle de chaque monde (le worldborder
+#                                     natif est masqué à la taille maximale) et les réglages actifs.
 #
 #  Permissions :
 #    shinviworldborder.bypass  Traverser les bordures (personne par défaut).
 #                              Le mode bypass de SuperiorSkyblock2 (/is admin bypass)
 #                              ouvre aussi les bordures d'îles.
-#    shinviworldborder.admin   /shinviworldborder reload (op par défaut).
-#    shinviworldborder.margin.<nom>  Marge d'île élargie (voir islands.margins).
+#    shinviworldborder.admin         Toutes les commandes d'administration (op par défaut).
+#    shinviworldborder.admin.reload  /shinviworldborder reload
+#    shinviworldborder.admin.info    /shinviworldborder info
+#    shinviworldborder.margin.<nom>  Marge d'île élargie (voir islands.margins), un nœud par
+#                                    clé : shinviworldborder.margin.vip, .vipplus, .vipelite.
 #
 #  Fichiers :
 #    config.yml       réglages (ce fichier)

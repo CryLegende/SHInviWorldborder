@@ -43,7 +43,9 @@ Utilisé sur : **Opale**.
 
 | Commande | Permission | Effet |
 | --- | --- | --- |
-| `/shinviworldborder reload` | `shinviworldborder.admin` (op) | Recharge `config.yml`, `messages.yml` et `borderdata.yml`. |
+| `/shinviworldborder reload` | `shinviworldborder.admin.reload` (op) | Recharge `config.yml`, `messages.yml` et `borderdata.yml`. Un fichier invalide annule le rechargement et garde l'ancienne configuration. |
+| `/shinviworldborder info [monde]` | `shinviworldborder.admin.info` (op) | Bordure réelle de chaque monde (le worldborder natif est masqué à la taille maximale) et réglages actifs. |
+| | `shinviworldborder.admin` (op) | Parent des deux permissions précédentes. |
 | | `shinviworldborder.bypass` | Traverser les bordures. Le mode bypass de SuperiorSkyblock2 ouvre aussi les bordures d'îles. |
 | | `shinviworldborder.margin.<nom>` | Marge d'île élargie, définie dans `islands.margins` (SkyHand : `vip` 2 blocs, `vipplus` 5, `vipelite` 10). |
 

@@ -54,10 +54,15 @@ final class WorldBorders {
     /** Vrai pendant que le plugin modifie lui-même un worldborder natif (ses propres évènements sont ignorés). */
     private boolean selfChange;
 
-    WorldBorders(JavaPlugin plugin) {
+    WorldBorders(JavaPlugin plugin, YamlConfiguration yaml) {
         this.plugin = plugin;
         this.file = new File(plugin.getDataFolder(), "borderdata.yml");
-        this.yaml = YamlConfiguration.loadConfiguration(file);
+        this.yaml = yaml;
+    }
+
+    /** Le réglage réel de la bordure du monde, ou null si le monde n'est pas suivi. */
+    Data data(World world) {
+        return borders.get(world.getUID());
     }
 
     /** Le mur de la bordure du monde, ou null s'il n'en a pas. */

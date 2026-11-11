@@ -18,4 +18,13 @@ teleport-blocked: '&7&l« &c&lSH &8&l» &7Impossible de vous téléporter &cau-d
 
 reloaded: '&7&l« &a&lSH &8&l» &7Configuration de SHInviWorldborder &arechargée&7.'
 no-permission: '&7&l« &c&lSH &8&l» &7Vous n''avez pas la &cpermission &7d''utiliser cette commande.'
-usage: '&7&l« &e&lSH &8&l» &7Utilisation : &e/shinviworldborder reload'
+admin-usage: '&7&l« &e&lSH &8&l» &7Utilisation : &e/shinviworldborder &7<&e{subcommands}&7>'
+reload-failed: '&7&l« &c&lSH &8&l» &7Rechargement annulé : &c{file} &7est illisible (&c{error}&7). L''ancienne configuration est gardée.'
+
+# /shinviworldborder info [monde] : {world}, {x}, {z}, {size} (bordure réelle) ; {worlds} et {islands} (activées ou
+# désactivées), {margin} (marge de base d'île) et {tiers} (paliers de marge) pour le résumé.
+info-header: '&7&l« &e&lSH &8&l» &7Bordures invisibles :'
+info-world: '&8• &e{world} &8» &7centre &e{x}&7, &e{z} &8| &7taille &e{size} &7blocs'
+info-world-none: '&8• &e{world} &8» &7aucune bordure'
+info-unknown-world: '&7&l« &c&lSH &8&l» &7Monde &c{world} &7introuvable.'
+info-settings: '&8• &7Bordures de monde &e{worlds}&7, d''île &e{islands} &8| &7marge d''île &e{margin} &7bloc(s), paliers : &e{tiers}'
