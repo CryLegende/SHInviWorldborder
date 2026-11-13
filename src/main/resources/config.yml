@@ -35,7 +35,7 @@
 #    shinviworldborder.admin.reload  /shinviworldborder reload
 #    shinviworldborder.admin.info    /shinviworldborder info
 #    shinviworldborder.margin.<nom>  Marge d'île élargie (voir islands.margins), un nœud par
-#                                    clé : shinviworldborder.margin.vip, .vipplus, .vipelite.
+#                                    clé : shinviworldborder.margin.vip, .premium.
 #
 #  Fichiers :
 #    config.yml       réglages (ce fichier)
@@ -73,8 +73,7 @@ islands:
   # Le joueur garde la plus large de celles qu'il possède. Relu toutes les 5 secondes.
   margins:
     vip: 2.0
-    vipplus: 5.0
-    vipelite: 10.0
+    premium: 5.0
   particles:
     enabled: true
     # Le mur est dessiné sur le bord de l'île (limite de construction), pas à la limite de déplacement.
