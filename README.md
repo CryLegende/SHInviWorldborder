@@ -51,7 +51,7 @@ Utilisé sur : **Opale**.
 
 ## Configuration
 
-Fichiers par défaut repris du serveur. Cliquez sur un fichier pour l'ouvrir :
+Fichiers par défaut, avec des valeurs d'exemple. Cliquez sur un fichier pour l'ouvrir :
 
 <pre>
 plugins/SHInviWorldborder/
